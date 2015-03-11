@@ -37,6 +37,7 @@ void drawButton(World::Button b){
 void myDisplay(bool DebugDrawing,Color col)
 {
     using namespace World;
+
     setBackGround(WHITE);
     drawAxis();
     if(DebugDrawing){
@@ -157,7 +158,7 @@ void initialView(int width, int height)
     using namespace View;
     winWidth=width;
     winHeight=height;
-    viewCenter=Vector2(0.0,-3);
+    viewCenter=Vector2(0.0,0);
     oneMeterLengthOnScreen=100.0;
     viewZoneLeft    =-winWidth/2/oneMeterLengthOnScreen+viewCenter.x;
     viewZoneRight   =winWidth/2/oneMeterLengthOnScreen+viewCenter.x;

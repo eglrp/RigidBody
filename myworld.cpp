@@ -49,7 +49,7 @@ void oneStep() {
     for (vector<MyShape*>::iterator i=ShapeList.begin(); i<ShapeList.end(); i++) {
         (*i)->calc_AABB();
     }
-    ContactSolver solver(10,10);
+    ContactSolver solver(8,10);
     CollisionFinder finder;
     vector<ContactConstraint> c;
     c=finder.FindCollisions(ShapeList);
@@ -62,7 +62,6 @@ void oneStep() {
     for (vector<MyShape*>::iterator i=ShapeList.begin(); i<ShapeList.end(); i++) {
         (*i)->updateVertex();
     }
-
 
 }
 void calc_force(MyShape* s) {

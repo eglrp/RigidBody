@@ -3,7 +3,8 @@
 #include <iostream>
 //include temps
 #include "myworld.h"
-//#define MY_DEBUG
+#define MY_DEBUG
+#define DEBUG_TIME_INTERVAL 30
 using namespace std;
 void ContactSolver::OneVelocitySolveIteration(vector<ContactConstraint> &allConstraints, std::vector<MyShape *> &shapes)
 {
@@ -252,18 +253,22 @@ void ContactSolver::OneVelocitySolveIteration(vector<ContactConstraint> &allCons
         b.angVel=avB;
 #ifdef MY_DEBUG
         noRefreshPush();
-        myDisplay(true);
+        myDisplay();
         for(int j=0;j<pointCount;j++){
             ContactPoint& cp=cc.points[j];
             Vector2 po=cp.position;
-            Vector2 poNormal=po+n*cp.normalImpulse/5;
-            Vector2 poTangent=po+t*cp.tangentImpulse/5;
-            myDrawPoint(po,5,GREEN);
-            myDrawLine(po.x,po.y,poNormal.x,poNormal.y,GREEN,2);
-            myDrawLine(po.x,po.y,poTangent.x,poTangent.y,RED,2);
+            double lengthN=max(0.5,cp.normalImpulse);
+            double lengthT=max(0.5,cp.tangentImpulse);
+            Vector2 poNormal=po+n*lengthN/5;
+            Vector2 poNormal2=po-n*lengthN/5;
+            Vector2 poTangent=po+t*lengthT/5;
+            Vector2 poTangent2=po-t*lengthT/5;
+            myDrawPoint(po,2,GREEN);
+            myDrawLine(poNormal2.x,poNormal2.y,poNormal.x,poNormal.y,GREEN,2);
+            myDrawLine(poTangent2.x,poTangent2.y,poTangent.x,poTangent.y,RED,2);
         }
         noRefreshPop();
-        milliSleep(5);
+        milliSleep(DEBUG_TIME_INTERVAL);
 #endif
     }//loop for allContacts
 }
@@ -290,8 +295,8 @@ bool ContactSolver::OnePositionSolveIteration(std::vector<ContactConstraint> &al
 
 #ifdef MY_DEBUG
         Vector2 sep[2];
-        Vector2 nImpulseA[2];
-        Vector2 nImpulseB[2];
+        Vector2 nImpulse[2];
+
 
 #endif
         for(int j=0;j<pointCount;j++){
@@ -352,9 +357,8 @@ bool ContactSolver::OnePositionSolveIteration(std::vector<ContactConstraint> &al
 
 #ifdef MY_DEBUG
             sep[j]=sepPoint;
-            nImpulseA[j]=-iMA*P*50;
-            nImpulseB[j]=iMB*P*50;
-
+            impulse=max(0.001,impulse);
+            nImpulse[j]=-impulse*n*100;
 #endif
         }
         a.center=cA;
@@ -365,18 +369,18 @@ bool ContactSolver::OnePositionSolveIteration(std::vector<ContactConstraint> &al
         a.updateVertex();
         b.updateVertex();
         noRefreshPush();
-        myDisplay(true);
+        myDisplay();
         for(int j=0;j<pointCount;j++){
             ContactPoint& cp=cc.points[j];
             Vector2 po=sep[j];
-            Vector2 poA=po+nImpulseA[j];
-            Vector2 poB=po+nImpulseB[j];
-            myDrawPoint(po,2,RED);
-            myDrawLine(po.x,po.y,poA.x,poA.y,RED,2);
-            myDrawLine(po.x,po.y,poB.x,poB.y,RED,2);
+            Vector2 poA=po+nImpulse[j];
+            Vector2 poB=po-nImpulse[j];
+            myDrawPoint(po,2,BLUE);
+            myDrawLine(po.x,po.y,poA.x,poA.y,BLUE,2);
+            myDrawLine(po.x,po.y,poB.x,poB.y,BLUE,2);
         }
         noRefreshPop();
-        milliSleep(5);
+        milliSleep(DEBUG_TIME_INTERVAL);
         //cout<<a.ID<<"-"<<b.ID<<endl;
 #endif
 
