@@ -1,6 +1,5 @@
 #include <iostream>
 #include "userinterface.h"
-#include "myworld.h"
 #include <Imagine/Graphics.h>
 #include "graphics.h"
 #include "MyShape.h"

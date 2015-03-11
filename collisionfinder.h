@@ -5,7 +5,7 @@
 #include "MyShape.h"
 #include "matrix.h"
 #include <iostream>
-class Graph;
+
 struct ContactPoint{
     Vector2 position;
     Vector2 rA,rB;
@@ -34,7 +34,6 @@ struct ContactConstraint{
     Vector2 localFacePoint;
     Vector2 localContact[2];
     Vector2 localNormal;
-
 };
 
 

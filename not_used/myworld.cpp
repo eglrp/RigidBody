@@ -14,14 +14,7 @@ Button buttonDrag,buttonPoly,buttonCircle;
 bool debugMode=false;
 }
 using namespace World;
-void stop_all_shape()
-{
-    for (vector<MyShape*>::iterator i=ShapeList.begin(); i<ShapeList.end(); i++) {
-        (*i)->vel=Vector2(0,0);
-        (*i)->angVel=0;
-    }
-    //cout<<"stop!"<<endl;
-}
+
 void myinit() {
     readFile(ShapeList);
     lastTime=lastFrameTime=clock();

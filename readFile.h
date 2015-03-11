@@ -1,9 +1,4 @@
-/*
- * readFile.h
- *
- *  Created on: 2013-9-19
- *      Author: FLM
- */
+
 
 #ifndef READFILE_H
 #define READFILE_H
@@ -12,8 +7,13 @@
 #include <fstream>
 #include <sstream>
 #include <stdio.h>
-#include "MyShape.h"
-using namespace std;
-void readFile(vector<MyShape*> &ShapeList) ;
+
+class ShapeManager;
+class FileReader{
+public:
+    void readFile(std::string fileName,ShapeManager& shapeManager) ;
+};
+
+
 
 #endif /* READFILE_H*/

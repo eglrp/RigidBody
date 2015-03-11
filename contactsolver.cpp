@@ -1,9 +1,7 @@
 #include "contactsolver.h"
 #include "graphics.h"
 #include <iostream>
-//include temps
-#include "myworld.h"
-#define MY_DEBUG
+//#define MY_DEBUG
 #define DEBUG_TIME_INTERVAL 30
 using namespace std;
 void ContactSolver::OneVelocitySolveIteration(vector<ContactConstraint> &allConstraints, std::vector<MyShape *> &shapes)
@@ -388,6 +386,8 @@ bool ContactSolver::OnePositionSolveIteration(std::vector<ContactConstraint> &al
     return minSeparation>-0.01;
 }
 
+
+
 void ContactSolver::SolveVel(vector<ContactConstraint> &allConstraints, std::vector<MyShape *> &shapes)
 {
     for(int i=0;i<velIterations;i++){
@@ -411,6 +411,30 @@ void ContactSolver::SolvePos(std::vector<ContactConstraint> &allConstraints, std
     }
 }
 
+void ContactSolver::integratePosAndVel(std::vector<MyShape *> &shapes, double dt)
+{
+    for(std::vector<MyShape*>::iterator i=shapes.begin();i!=shapes.end();i++){
+        MyShape* p=*i;
+        p->makeMove(dt);
+    }
+}
+
+void ContactSolver::FindAndSolve(vector<MyShape*>& shapeList, double dt)
+{
+    CollisionFinder colliFinder;
+    vector<ContactConstraint> c;
+    c=colliFinder.FindCollisions(shapeList);
+    SolveVel(c,shapeList);
+    integratePosAndVel(shapeList,dt);
+    SolvePos(c,shapeList);
+    for(vector<MyShape*>::iterator i=shapeList.begin();i<shapeList.end();i++){
+        MyShape* p=*i;
+        p->updateVertex();
+    }
+}
+
+
+
 ContactSolver::ContactSolver(int VelIterations, int PosIterations)
 {
     velIterations=VelIterations;
@@ -418,9 +442,4 @@ ContactSolver::ContactSolver(int VelIterations, int PosIterations)
 }
 
 
-
-ContactSolver::~ContactSolver()
-{
-
-}
 

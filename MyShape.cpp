@@ -84,6 +84,7 @@ void MyPolygon::move(Vector2 dx)
 void MyCircle::move(Vector2 dx)
 {
     center+=dx;
+    calc_AABB();
 }
 void MyPolygon::moveTo(Vector2 pos)
 {
@@ -94,6 +95,7 @@ void MyPolygon::moveTo(Vector2 pos)
 void MyCircle::moveTo(Vector2 pos)
 {
     center=pos;
+    calc_AABB();
 }
 void MyPolygon::rotate(double degree){
     angle+=degree;
@@ -226,6 +228,7 @@ void MyPolygon::makeMove(double dt)
     angle+=angVel*dt;
     angVel+=ang_acc*dt/2;
     calcVertex();
+    calc_AABB();
 }
 void MyCircle::makeMove(double dt){
     if(fixToGround)return;
@@ -237,6 +240,7 @@ void MyCircle::makeMove(double dt){
     angVel+=ang_acc*dt/2;
     angle+=angVel*dt;
     angVel+=ang_acc*dt/2;
+    calc_AABB();
 }
 
 void MyPolygon::calc_AABB()

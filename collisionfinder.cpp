@@ -35,7 +35,6 @@ bool CollisionFinder::GetConstraint(int indexA, int indexB, const MyShape *pa, c
     Vector2 n,p[2];
     Vector2 facePoint;
     int numOfContact;
-    double depth;
     ContactConstraint::Type contactType;
     if(SATtwoShape(pa,pb,n,p[0],p[1],numOfContact,contactType,facePoint)){
         //n : A->B

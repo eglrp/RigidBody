@@ -16,7 +16,7 @@
 using namespace Imagine;
 
 namespace World {
-extern vector<MyShape*> ShapeList;
+extern std::vector<MyShape*> ShapeList;
 extern clock_t currentTime, lastTime,lastFrameTime;
 extern double simulateSpeed;
 extern double dt;
@@ -26,7 +26,7 @@ extern int framsBetweenDisplay;
 struct Button{
     int x,y,w,h;
     bool state;
-    string name;
+    std::string name;
 };
 extern Button buttonDrag,buttonPoly,buttonCircle;
 extern bool debugMode;
@@ -43,7 +43,7 @@ bool collide_testPolygonPolygon(MyPolygon& a, MyPolygon& b, Vector2& point, Vect
 const Vector2 GetNearestPointToLine(const Vector2& c, const Vector2& a, const Vector2& b);
 void collide_act(MyShape &inserter, MyShape &inserted, Vector2 collide_point, Vector2 insert_point);
 void PositionalCorrection(MyShape &A, MyShape &B, Vector2 penetrationDepthN);
-void stop_all_shape();
+
 void myinit();
 const Vector2 GetNearestPointToLine(const Vector2& c, const Vector2& a, const Vector2& b);
 
