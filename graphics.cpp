@@ -34,12 +34,36 @@ void drawButton(World::Button b){
 
 }
 
-void myDisplay()
+void myDisplay(bool DebugDrawing,Color col)
 {
     using namespace World;
     setBackGround(WHITE);
     drawAxis();
-    for_each(ShapeList.begin(),ShapeList.end(),draw_each);
+    if(DebugDrawing){
+        for(vector<MyShape*>::iterator i=ShapeList.begin();i<ShapeList.end();i++){
+            MyShape* s=*i;
+            switch (s->shapeType) {
+            case POLYGON:
+            {
+                MyPolygon* sP=static_cast<MyPolygon*>(s);
+                MyPolygon tempPoly(*sP);
+                tempPoly.makeMove(dt);
+                draw_each(&tempPoly,RED,false);
+                break;
+            }
+            case CIRCLE:
+                break;
+            default:
+                break;
+            }
+
+
+        }
+    }
+    for(vector<MyShape*>::iterator i=ShapeList.begin();i<ShapeList.end();i++){
+        draw_each(*i,col,true);
+    }
+
 
     drawButton(buttonDrag);
     drawButton(buttonPoly);
@@ -47,17 +71,14 @@ void myDisplay()
 
 
 }
-void draw_each(MyShape* s)
+void draw_each(MyShape* s,Color col,bool drawID)
 {
-    if(s->shapeType==POLYGON){
-        myDrawPolygon(*static_cast<MyPolygon*>(s));
-    }
     switch (s->shapeType) {
     case POLYGON:
-        myDrawPolygon(*static_cast<MyPolygon*>(s));
+        myDrawPolygon(*static_cast<MyPolygon*>(s),col,drawID);
         break;
     case CIRCLE:
-        myDrawCircle(*static_cast<MyCircle*>(s));
+        myDrawCircle(*static_cast<MyCircle*>(s),col,drawID);
         break;
     default:
         break;
@@ -69,13 +90,13 @@ void drawAxis()
     int i,j;
     int n=5;
     for(i=-n;i<=n;i++){
-        myDrawLine(i,-n,i,n,GREEN);
+        myDrawLine(i,-n,i,n,Color(200,200,200));
     }
     for(j=-n;j<=n;j++){
-        myDrawLine(-n,j,n,j,GREEN);
+        myDrawLine(-n,j,n,j,Color(200,200,200));
     }
-    myDrawLine(0,-n,0,n,RED);
-    myDrawLine(-n,0,n,0,RED);
+    myDrawLine(0,-n,0,n,Color(200,200,200));
+    myDrawLine(-n,0,n,0,Color(200,200,200));
 }
 void myDrawPoint(const Vector2& p, int radius, Color col) {
 
@@ -83,25 +104,26 @@ void myDrawPoint(const Vector2& p, int radius, Color col) {
     coordTranslate(p.x,p.y,x,y);
     fillCircle(x,y,radius,col);
 }
-void myDrawPolygon(MyPolygon &p){
+void myDrawPolygon(MyPolygon &p, Color col,bool drawID){
     if(p.shapeType!=POLYGON){cout<<"drawpolygon need polygon"<<endl;exit(0);}
     vector<Vector2 >::iterator v;
 
     for (v=p.vertex.begin(); v<p.vertex.end()-1; ++v){
-        myDrawLine((*v).x,(*v).y,(*(v+1)).x,(*(v+1)).y, BLACK);
+        myDrawLine((*v).x,(*v).y,(*(v+1)).x,(*(v+1)).y, col);
 
     }
-    myDrawLine(p.vertex.back().x,p.vertex.back().y,p.vertex.front().x,p.vertex.front().y, BLACK);
+    myDrawLine(p.vertex.back().x,p.vertex.back().y,p.vertex.front().x,p.vertex.front().y, col);
 
-    std::stringstream ss;
-    ss<<p.ID;
-    int xx1,yy1;
-    coordTranslate(p.center.x,p.center.y,xx1,yy1);
-    drawString(xx1,yy1,(ss.str()),BLACK);
-
+    if(drawID){
+        std::stringstream ss;
+        ss<<p.ID;
+        int xx1,yy1;
+        coordTranslate(p.center.x,p.center.y,xx1,yy1);
+        drawString(xx1,yy1,(ss.str()),col);
+    }
 }
 
-void myDrawCircle(MyCircle &p){
+void myDrawCircle(MyCircle &p, Color col,bool drawID){
     if(p.shapeType!=CIRCLE){cout<<"drawCircle need circle"<<endl;exit(0);}
     int xx1,yy1,xx2,yy2,r;
     Vector2 pointOnCircle;
@@ -111,15 +133,22 @@ void myDrawCircle(MyCircle &p){
     coordTranslate(pointOnCircle.x,pointOnCircle.y,xx2,yy2);
     r=p.radius*View::oneMeterLengthOnScreen;
 
-    drawCircle(xx1,yy1,r,BLACK);
-    drawLine(xx1,yy1,xx2,yy2,BLACK);
+    drawCircle(xx1,yy1,r,col);
+    drawLine(xx1,yy1,xx2,yy2,col);
+    if(drawID){
+        std::stringstream ss;
+        ss<<p.ID;
+        int xx1,yy1;
+        coordTranslate(p.center.x,p.center.y,xx1,yy1);
+        drawString(xx1,yy1,(ss.str()),col);
+    }
 }
-void myDrawLine(double x1,double y1,double x2,double y2,Color col){
+void myDrawLine(double x1,double y1,double x2,double y2,Color col,int penWidth){
     using namespace View;
     int xx1,xx2,yy1,yy2;
     coordTranslate(x1,y1,xx1,yy1);
     coordTranslate(x2,y2,xx2,yy2);
-    drawLine(xx1,yy1,xx2,yy2,col);
+    drawLine(xx1,yy1,xx2,yy2,col,penWidth);
 }
 
 

@@ -27,12 +27,12 @@ long myIdle()
     {
 
         cumulativeTime-=World::frameTime;
-        noRefreshBegin();
+        noRefreshPush();
         //if(frameAfterDisplay>=World::framsBetweenDisplay){
         //frameAfterDisplay=0;
         myDisplay();
         //}
-        noRefreshEnd();
+        noRefreshPop();
         //frameAfterDisplay++;
         oneStep();
 
@@ -47,7 +47,7 @@ long myIdle()
             //saveColorImage("capture.jpg",C,w,h);
 
         }
-        cout<<"framecount:"<<frameCount<<endl;
+        cout<<endl<<"Frame Count: "<<frameCount<<endl;
         //cout<<"fps:"<<double(CLOCKS_PER_SEC)/(clock()-World::lastFrameTime)<<endl;
 
         //cout<<clock()<<endl;

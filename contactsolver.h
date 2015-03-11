@@ -7,7 +7,7 @@ class ContactSolver
     int velIterations;
     int posIterations;
     void OneVelocitySolveIteration(std::vector<ContactConstraint> &allConstraints,std::vector<MyShape*>& shapes);
-    void OnePositionSolveIteration(std::vector<ContactConstraint> &allConstraints,std::vector<MyShape*>& shapes);
+    bool OnePositionSolveIteration(std::vector<ContactConstraint> &allConstraints,std::vector<MyShape*>& shapes);
 public:
     void SolveVel(std::vector<ContactConstraint> &allConstraints,std::vector<MyShape*>& shapes);
     void SolvePos(std::vector<ContactConstraint> &allConstraints,std::vector<MyShape*>& shapes);

@@ -3,6 +3,7 @@
 #include <iostream>
 //include temps
 #include "myworld.h"
+//#define MY_DEBUG
 using namespace std;
 void ContactSolver::OneVelocitySolveIteration(vector<ContactConstraint> &allConstraints, std::vector<MyShape *> &shapes)
 {
@@ -49,6 +50,7 @@ void ContactSolver::OneVelocitySolveIteration(vector<ContactConstraint> &allCons
             avB+=iIB*crossProd2D(cp.rB,P);
         }
 
+
         //Solve normal constraints
         if(pointCount==1){
 
@@ -68,12 +70,12 @@ void ContactSolver::OneVelocitySolveIteration(vector<ContactConstraint> &allCons
             avA-=iIA*crossProd2D(cp.rA,P);
             vB+=iMB*P;
             avB+=iIB*crossProd2D(cp.rB,P);
-            //-----DEBUG-----------------
+            //DEBUG
             //myDrawPoint(cp.position);
 
 
 
-            //-----DEBUG-----------------
+            //~DEBUG
         }else{
             //pointCount==2, that means we have two contacts between two shapes
             //|---------------------------------------------------|
@@ -101,13 +103,13 @@ void ContactSolver::OneVelocitySolveIteration(vector<ContactConstraint> &allCons
             // b' = b - A * a;
             ContactPoint &cp1=cc.points[0];
             ContactPoint &cp2=cc.points[1];
-            //-----DEBUG-----------------
+            //DEBUG
             //myDrawPoint(cp1.position);
             //myDrawPoint(cp2.position);
 
 
 
-            //-----DEBUG-----------------
+            //~DEBUG
             Vector2 f(cp1.normalImpulse,cp2.normalImpulse);
             Vector2 dv1=vB+crossProd2D(avB,cp1.rB)-vA-crossProd2D(avA,cp1.rA);
             Vector2 dv2=vB+crossProd2D(avB,cp2.rB)-vA-crossProd2D(avA,cp2.rA);
@@ -248,14 +250,27 @@ void ContactSolver::OneVelocitySolveIteration(vector<ContactConstraint> &allCons
         a.angVel=avA;
         b.vel=vB;
         b.angVel=avB;
+#ifdef MY_DEBUG
+        noRefreshPush();
+        myDisplay(true);
+        for(int j=0;j<pointCount;j++){
+            ContactPoint& cp=cc.points[j];
+            Vector2 po=cp.position;
+            Vector2 poNormal=po+n*cp.normalImpulse/5;
+            Vector2 poTangent=po+t*cp.tangentImpulse/5;
+            myDrawPoint(po,5,GREEN);
+            myDrawLine(po.x,po.y,poNormal.x,poNormal.y,GREEN,2);
+            myDrawLine(po.x,po.y,poTangent.x,poTangent.y,RED,2);
+        }
+        noRefreshPop();
+        milliSleep(5);
+#endif
     }//loop for allContacts
 }
 
-void ContactSolver::OnePositionSolveIteration(std::vector<ContactConstraint> &allConstraints, std::vector<MyShape *> &shapes)
+bool ContactSolver::OnePositionSolveIteration(std::vector<ContactConstraint> &allConstraints, std::vector<MyShape *> &shapes)
 {
-    //DEBUG
-    int Dcount=0;
-    //DEBUG
+    double minSeparation=1e15;
     for(vector<ContactConstraint>::iterator it=allConstraints.begin();it<allConstraints.end();it++){
         ContactConstraint& cc=*it;
 
@@ -272,15 +287,18 @@ void ContactSolver::OnePositionSolveIteration(std::vector<ContactConstraint> &al
         Vector2 cB=b.center;
         double avA=a.angle;
         double avB=b.angle;
-        Transform transA(a.angle,a.center);
-        Transform transB(b.angle,b.center);
-        //DEBUG
+
+#ifdef MY_DEBUG
         Vector2 sep[2];
-        //DEBUG
+        Vector2 nImpulseA[2];
+        Vector2 nImpulseB[2];
+
+#endif
         for(int j=0;j<pointCount;j++){
             Vector2 n,sepPoint;
-            double separation;
-
+            double separation;//negative if overlap
+            Transform transA(avA,cA);
+            Transform transB(avB,cB);
             switch (cc.type) {
 
             case ContactConstraint::faceA:
@@ -312,7 +330,7 @@ void ContactSolver::OnePositionSolveIteration(std::vector<ContactConstraint> &al
             default:
                 break;
             }
-
+            if(minSeparation>separation)minSeparation=separation;
 
             Vector2 rA=sepPoint-cA;
             Vector2 rB=sepPoint-cB;
@@ -332,29 +350,38 @@ void ContactSolver::OnePositionSolveIteration(std::vector<ContactConstraint> &al
 
 
 
-            //DEBUG
+#ifdef MY_DEBUG
             sep[j]=sepPoint;
+            nImpulseA[j]=-iMA*P*50;
+            nImpulseB[j]=iMB*P*50;
 
-            //-DEBUG
+#endif
         }
         a.center=cA;
         b.center=cB;
         a.angle=avA;
         b.angle=avB;
+#ifdef MY_DEBUG
         a.updateVertex();
         b.updateVertex();
-        myDisplay();
-        if(pointCount==1){
-            myDrawPoint(sep[0],5);
-        }else{
-            myDrawPoint(sep[0],5);
-            myDrawPoint(sep[1],5);
+        noRefreshPush();
+        myDisplay(true);
+        for(int j=0;j<pointCount;j++){
+            ContactPoint& cp=cc.points[j];
+            Vector2 po=sep[j];
+            Vector2 poA=po+nImpulseA[j];
+            Vector2 poB=po+nImpulseB[j];
+            myDrawPoint(po,2,RED);
+            myDrawLine(po.x,po.y,poA.x,poA.y,RED,2);
+            myDrawLine(po.x,po.y,poB.x,poB.y,RED,2);
         }
-        milliSleep(50);
-        cout<<a.ID<<"-"<<b.ID<<endl;
+        noRefreshPop();
+        milliSleep(5);
+        //cout<<a.ID<<"-"<<b.ID<<endl;
+#endif
 
     }
-
+    return minSeparation>-0.01;
 }
 
 void ContactSolver::SolveVel(vector<ContactConstraint> &allConstraints, std::vector<MyShape *> &shapes)
@@ -362,12 +389,21 @@ void ContactSolver::SolveVel(vector<ContactConstraint> &allConstraints, std::vec
     for(int i=0;i<velIterations;i++){
         OneVelocitySolveIteration(allConstraints,shapes);
     }
+#ifdef MY_DEBUG
+    //milliSleep(500);
+    //~DEBUG
+#endif
 }
 
 void ContactSolver::SolvePos(std::vector<ContactConstraint> &allConstraints, std::vector<MyShape *> &shapes)
 {
     for(int i=0;i<posIterations;i++){
-        OnePositionSolveIteration(allConstraints,shapes);
+        if(OnePositionSolveIteration(allConstraints,shapes)){
+            //the correction is very small, don't need to continue.
+            cout<<"Early out from SolvePos"<<endl;
+            cout<<"Iteration used: "<<i<<endl;
+            break;
+        }
     }
 }
 
