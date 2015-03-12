@@ -1,5 +1,4 @@
 #include "contactsolver.h"
-#include "graphics.h"
 #include <iostream>
 //#define MY_DEBUG
 #define DEBUG_TIME_INTERVAL 30

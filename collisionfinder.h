@@ -3,7 +3,6 @@
 #include <vector>
 #include "algebra.h"
 #include "MyShape.h"
-#include "matrix.h"
 #include <iostream>
 
 struct ContactPoint{

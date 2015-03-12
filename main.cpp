@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string>
-#include "algebra.h"
 #include "graphics.h"
 #include "worldmanager.h"
 #include "frametimer.h"

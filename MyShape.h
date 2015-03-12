@@ -1,11 +1,8 @@
 #ifndef MYSHAPE_H
 #define MYSHAPE_H
 #include <iostream>
-#include <math.h>
 #include <vector>
 #include <string>
-#include <algorithm>
-#include <stdio.h>
 #include "algebra.h"
 
 
