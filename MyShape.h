@@ -18,13 +18,25 @@ class MyShape
 public:
     MyShape(ShapeType Shapetype, Vector2 Position, double Mass, double Area);
 
-    Vector2 center, vel, force;
+
     static int IDcount;
     int ID;
     ShapeType shapeType;
+
+    //cinematic
+    Vector2 center;
     double angle;
-    double angVel; //angular velocity
+
+    double radius;//for polygon = 0
+
+    Vector2 vel;
+    double angVel;
+
+    //dynamic
+    Vector2 force;
     double torque;
+
+    //property
     double mass;
     double area;
     double invMass;
@@ -33,6 +45,7 @@ public:
     double restitution;
     double friction;
     bool fixToGround;
+
     AABB aabb;
     virtual void move(Vector2 dx)=0;
     virtual void moveTo(Vector2 pos)=0;
@@ -40,7 +53,6 @@ public:
     virtual void draw()=0;
     virtual void updateVertex()=0;
     virtual void makeMove(double dt)=0;
-
     virtual void calc_AABB()=0;
 private:
 };
@@ -48,9 +60,7 @@ private:
 class MyCircle: public MyShape
 {
 public:
-    MyCircle(double Radius, Vector2 Center, double Mass);
-
-    double radius;
+    MyCircle(double Radius, Vector2 Center, double Mass, double Density);
 
     void move(Vector2 dx);
     void moveTo(Vector2 pos);
@@ -66,7 +76,7 @@ private:
 class MyPolygon: public MyShape
 {
 public:
-    MyPolygon(double Mass, const std::vector<Vector2> &vList);
+    MyPolygon(const std::vector<Vector2> &vList, double Mass, double Density);
 
     int vertex_n;
     std::vector<Vector2> vertexLocal;//must be in the anticlockwise order
@@ -82,10 +92,11 @@ public:
     void draw();
     void calc_AABB();
     void updateVertex();
-
+    void updateNormal();
 
 
 private:
+    void calcNormalLocal();
     void calcCenterAndArea();
     void vertexRelativization();
     void calcVertex();
@@ -96,6 +107,7 @@ private:
 
 bool TestAABBAABB(const AABB&, const AABB&);
 bool PointInPolygon(const MyPolygon&, const Vector2&);
+bool PointInCircle(const MyCircle&c, const Vector2&v);
 bool TriangleIsCCW(const Vector2&, const Vector2&, const Vector2&);
 double ORIENT2D(const Vector2&, const Vector2&, const Vector2&);
 int WhichSideIsNearest(const MyPolygon&, const Vector2&);

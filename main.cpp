@@ -5,33 +5,41 @@
 #include "frametimer.h"
 #include <math.h>
 #include <Imagine/Graphics.h>
+#include "userui.h"
 
 using namespace std;
 int main()
 {
     int width,height;
     width=height=1024;
-    long time;
-    double dt=0.02;//second
-    double simulationSpeed=1.0;
+
+
     GraphicManager graphicManager(width,height);
-    WorldManager worldManager(dt,Vector2(0,-10));
-    double frameTime=dt/simulationSpeed;
+    WorldManager worldManager;
+    UserUI userUI(worldManager.getShapeManager(),&graphicManager);
+    worldManager.setDebugDrawer(&graphicManager);
 
     Imagine::openWindow(width,height);
-    worldManager.readFile("data.txt");
+
+    worldManager.readFile("data_circle.txt");
+    double frameTime=worldManager.getRecommendFrameTime();
     FrameTimer timer(frameTime);
     timer.start();
 
     int frameCount=0;
     while(1){
-
         if(timer.isTimeToGo()){
 
-            graphicManager.myDisplay(worldManager.getShapeList(),dt);
+            graphicManager.myDisplay(worldManager.getShapeList());
             worldManager.OneStep();
+            userUI.treatEvents();
+            userUI.drawButtons();
             timer.finishOneFrame();
-            cout<<"frameCount"<<frameCount++<<endl;
+            cout<<"frameCount "<<frameCount++<<endl;
+            if(frameCount==134){
+                cout<<"stop"<<endl;
+            }
+            cout<<"fps "<<1000./timer.timeBetweenTwoCalls()<<endl;
 
         }
     }

@@ -4,7 +4,7 @@
 #include "algebra.h"
 #include "MyShape.h"
 #include <iostream>
-
+class GraphicManager;
 struct ContactPoint{
     Vector2 position;
     Vector2 rA,rB;
@@ -39,18 +39,24 @@ struct ContactConstraint{
 
 class CollisionFinder
 {
+    GraphicManager* debugDrawer;
+    bool debugDraw;
     bool shouldContact(const MyShape& a,const MyShape& b);
-    bool SATtwoShape(const MyShape *a, const MyShape *b, Vector2& n, Vector2& point1, Vector2& point2, int& numOfContact, ContactConstraint::Type& contactType, Vector2 &facePoint);
-    bool GetConstraint(int indexA, int indexB, const MyShape* pa, const MyShape* pb, ContactConstraint& constraint);
-    bool SATPolygon(const MyPolygon *pa, const MyPolygon *pb, Vector2& n, Vector2& point1, Vector2& point2, int& numOfContact,ContactConstraint::Type& contactType,Vector2& facePoint);
-    bool SATPolygonCircle(const MyPolygon *pa, const MyCircle *pb, Vector2& n, Vector2& point1, Vector2& point2, int& numOfContact,ContactConstraint::Type& contactType,Vector2& facePoint);
+    bool SATtwoShape(MyShape *a, MyShape *b, Vector2& n, Vector2& contactPoint1, Vector2& contactPoint2, int& numOfContact, ContactConstraint::Type& contactType, Vector2 &facePoint);
+    bool GetConstraint(int indexA, int indexB, MyShape *pa, MyShape *pb, ContactConstraint& constraint);
+    bool SATPolygon(MyPolygon *pa, MyPolygon *pb, Vector2& n, Vector2& contactPoint1, Vector2& contactPoint2, int& numOfContact, ContactConstraint::Type& contactType, Vector2& facePoint);
+    bool SATCircle(MyCircle *pa, MyCircle *pb,Vector2& n, Vector2& contactPoint);
+    bool SATPolygonCircle(MyPolygon *pa, MyCircle *pb, Vector2& n, Vector2& contactPoint, Vector2& facePoint);
     void clipSegment(Vector2& l1,Vector2& l2,Vector2 clipPoint,Vector2 n);
     void getMinFromProjection(const std::vector<Vector2>& v,Vector2 n,double& min,std::vector<Vector2>::const_iterator& min_i);
 
 public:
-    std::vector<ContactConstraint>  FindCollisions(const std::vector<MyShape*>& shapes);
     CollisionFinder();
-    ~CollisionFinder();
+    void turnOnDebugDraw();
+
+    std::vector<ContactConstraint>  FindCollisions(std::vector<MyShape *> &shapes);
+    void setDebugDrawer(GraphicManager *debugDrawer);
+
 };
 
 #endif // COLLISIONFINDER_H

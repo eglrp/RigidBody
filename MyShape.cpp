@@ -53,7 +53,7 @@ int WhichSideIsNearest(const MyPolygon &s, const Vector2& p)
 
 
 MyShape::MyShape(ShapeType Shapetype, Vector2 Position, double Mass, double Area) :
-        angle(0)
+    angle(0)
 {
     ID=IDcount;
     IDcount++;
@@ -67,7 +67,7 @@ MyShape::MyShape(ShapeType Shapetype, Vector2 Position, double Mass, double Area
     //by default
     force.x=0;force.y=0;
     torque=0;
-    invMass=1/mass;
+    if(mass!=0)invMass=1/mass;else invMass=0;
     angVel=0;
     vel=Vector2(0,0);
 
@@ -106,13 +106,15 @@ void MyCircle::rotate(double degree){
     angle+=degree;
 }
 
-MyCircle::MyCircle(double Radius, Vector2 Center, double Mass) :
-        MyShape(CIRCLE,Center,Mass,3.1415927*Radius*Radius), radius(Radius)
+MyCircle::MyCircle(double Radius, Vector2 Center, double Mass,double Density) :
+    MyShape(CIRCLE,Center,Mass,3.1415927*Radius*Radius)
 {
+    radius=Radius;
     if(fixToGround){
         mass=0;invMass=0;I=0;invI=0;
     }else{
-        I=Mass*Radius*Radius/2;invI=1/I;
+        if(Mass==0){mass=Density*area;invMass=1/mass;}
+        I=mass*radius*radius/2;invI=1/I;
     }
 
 }
@@ -120,15 +122,21 @@ void MyCircle::draw()
 {
     //draw
 }
-MyPolygon::MyPolygon(double Mass, const vector<Vector2> &vList) :
-        MyShape(POLYGON,Vector2(0.0,0.0),Mass,0)
+MyPolygon::MyPolygon(const vector<Vector2> &vList,double Mass, double Density) :
+    MyShape(POLYGON,Vector2(0.0,0.0),Mass,0)
 {
+    radius=0;
     vertex_n=vList.size();
     vertex.resize(vertex_n);
+    normal.resize(vertex_n);
     vertexLocal=vList;
     calcCenterAndArea();
-
+    if(Mass==0){
+        mass=area*Density;
+        invMass=1/mass;
+    }
     vertexRelativization();
+    calcNormalLocal();
     calcI();
 
     calcVertex();
@@ -171,31 +179,16 @@ void MyPolygon::calcCenterAndArea()
 void MyPolygon::draw()
 {
 
-//draw
+    //draw
 
 }
 void MyPolygon::calcVertex()
 {
-    /*
     Transform trans(angle,center);
     vector<Vector2 >::iterator vL,v;
 
     for (vL=vertexLocal.begin(),v=vertex.begin();vL<vertexLocal.end();++vL,++v)
         *v=(trans.Apply(*vL));
-    */
-    Matrix2 m_rotate(cos(angle),-sin(angle),sin(angle),cos(angle));
-        Vector2 t;
-        int i=0;
-        vector<Vector2 >::iterator v;
-
-        for (v=vertexLocal.begin(); v<vertexLocal.end(); ++v)
-        {
-            t=m_rotate*(*v);
-
-            vertex[i]=t+center;
-            ++i;
-
-        }
 }
 void MyPolygon::calcI()
 {
@@ -212,7 +205,7 @@ void MyPolygon::calcI()
         sum1+=temp*(v[j]*v[j]+v[j]*v[i]+v[i]*v[i]);
         sum2+=temp;
     }
-    area=sum2;
+    area=sum2/2;
     I=mass/6*sum1/sum2;
     invI=1/I;
 }
@@ -259,7 +252,32 @@ void MyPolygon::calc_AABB()
 
 void MyPolygon::updateVertex()
 {
-    calcVertex();
+    Transform trans(angle,center);
+    vector<Vector2 >::iterator vL,v;
+
+    for (vL=vertexLocal.begin(),v=vertex.begin();vL<vertexLocal.end();++vL,++v)
+        *v=(trans.Apply(*vL));
+}
+
+void MyPolygon::updateNormal()
+{
+    Rotation rot(angle);
+    vector<Vector2 >::iterator vL,v;
+
+    for (vL=normalLocal.begin(),v=normal.begin();vL<normalLocal.end();++vL,++v)
+        *v=(rot.Apply(*vL));
+}
+
+void MyPolygon::calcNormalLocal()
+{
+    for (vector<Vector2>::iterator v=vertexLocal.begin(); v<vertexLocal.end()-1;v++){
+        normalLocal.push_back(*(v+1)-*v);
+        normalLocal.back()/=sqrt(normalLocal.back()*normalLocal.back());
+        rotate90clockwise(normalLocal.back());
+    }
+    normalLocal.push_back(vertexLocal.front()-vertexLocal.back());
+    normalLocal.back()/=sqrt(normalLocal.back()*normalLocal.back());
+    rotate90clockwise(normalLocal.back());
 }
 void MyCircle::calc_AABB()
 {
@@ -267,4 +285,11 @@ void MyCircle::calc_AABB()
     aabb.right=center.x+radius;
     aabb.top=center.y+radius;
     aabb.bottom=center.y-radius;
+}
+
+
+bool PointInCircle(const MyCircle &c, const Vector2 & v)
+{
+    Vector2 d=v-c.center;
+    return d*d<c.radius*c.radius;
 }

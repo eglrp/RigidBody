@@ -6,20 +6,30 @@
 #include "MyShape.h"
 #include "shapemanager.h"
 #include "simulator.h"
-
+#include "graphics.h"
 class WorldManager
 {
     ShapeManager shapeManager;
     Simulator simulator;
     Vector2 gravity;
+    GraphicManager* debugDrawer;
     double dt;
+    double recommendFrameTime;
+    bool debugDraw;
 
 public:
-    WorldManager(double dt,Vector2 gravity=Vector2(0,0));
+    WorldManager();
     void OneStep();
     void readFile(std::string fileName);
     std::vector<MyShape*> getShapeList();
+    void setDebugDrawer(GraphicManager* debugDrawer);
+    ShapeManager* getShapeManager(){
+        return &shapeManager;
+    }
 
+    double getRecommendFrameTime(){
+        return recommendFrameTime;
+    }
 };
 
 #endif // WORLDMANAGER_H

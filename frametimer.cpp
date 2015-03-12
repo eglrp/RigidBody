@@ -10,6 +10,7 @@ void FrameTimer::start()
 {
     timer.start();
     lastFrameTime=timer.getElapsedTimeInMilliSec();
+    lastCall=lastFrameTime;
 }
 
 bool FrameTimer::isTimeToGo()
@@ -26,6 +27,14 @@ bool FrameTimer::isTimeToGo()
 void FrameTimer::finishOneFrame()
 {
     lastFrameTime+=oneFrameTime;
+}
+
+double FrameTimer::timeBetweenTwoCalls()
+{
+    double now=timer.getElapsedTimeInMilliSec();
+    double timeGap=now-lastCall;
+    lastCall=now;
+    return timeGap;
 }
 
 FrameTimer::~FrameTimer()

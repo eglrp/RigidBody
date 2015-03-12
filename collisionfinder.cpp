@@ -11,26 +11,48 @@ bool CollisionFinder::shouldContact(const MyShape &a, const MyShape &b)
     }
 }
 
-bool CollisionFinder::SATtwoShape(const MyShape *a,const MyShape *b, Vector2 &n, Vector2 &point1, Vector2 &point2, int &numOfContact,ContactConstraint::Type& contactType,Vector2& facePoint)
+bool CollisionFinder::SATtwoShape(MyShape *a,MyShape *b, Vector2 &n, Vector2 &contactPoint1, Vector2 &contactPoint2, int &numOfContact,ContactConstraint::Type& contactType,Vector2& facePoint)
 {
     if(a->shapeType==POLYGON&&b->shapeType==POLYGON){
-        if(SATPolygon(static_cast<const MyPolygon*>(a),static_cast<const MyPolygon*>(b),n,point1,point2,numOfContact,contactType,facePoint)){
+        if(SATPolygon(static_cast<MyPolygon*>(a),static_cast<MyPolygon*>(b),n,contactPoint1,contactPoint2,numOfContact,contactType,facePoint)){
             return true;
+        }else{
+            return false;
         }
-        return false;
     }else if(a->shapeType==POLYGON&&b->shapeType==CIRCLE){
-        return false;
+        if(SATPolygonCircle(static_cast<MyPolygon*>(a),static_cast<MyCircle*>(b),n,contactPoint1,facePoint)){
+            contactType=ContactConstraint::faceA;
+            numOfContact=1;
+            return true;
+        }else{
+            return false;
+        }
     }else if(a->shapeType==CIRCLE&&b->shapeType==POLYGON){
-        return false;
+        if(SATPolygonCircle(static_cast<MyPolygon*>(b),static_cast<MyCircle*>(a),n,contactPoint1,facePoint)){
+            contactType=ContactConstraint::faceB;
+            numOfContact=1;
+            n=-n;
+            return true;
+        }else{
+            return false;
+        }
     }else if(a->shapeType==CIRCLE&&b->shapeType==CIRCLE){
-        return false;
+        if(SATCircle(static_cast<MyCircle*>(a),static_cast<MyCircle*>(b),n,contactPoint1)){
+            contactType=ContactConstraint::circles;
+            numOfContact=1;
+            //facePoint not used here
+            return true;
+        }else{
+            return false;
+        }
+
     }else{
         cout<<"unknown shapetype"<<endl;
         exit(0);
     }
 }
 
-bool CollisionFinder::GetConstraint(int indexA, int indexB, const MyShape *pa, const MyShape *pb, ContactConstraint &constraint)
+bool CollisionFinder::GetConstraint(int indexA, int indexB, MyShape *pa, MyShape *pb, ContactConstraint &constraint)
 {
     Vector2 n,p[2];
     Vector2 facePoint;
@@ -71,9 +93,7 @@ bool CollisionFinder::GetConstraint(int indexA, int indexB, const MyShape *pa, c
             constraint.localContact[1]=transA.UnApply(p[1]);
             break;
         case ContactConstraint::circles :
-            //
-            //UNFINISHED
-            //
+            //nothing to do here.
         default:
             break;
         }
@@ -151,7 +171,7 @@ bool CollisionFinder::GetConstraint(int indexA, int indexB, const MyShape *pa, c
     }
 }
 
-vector<ContactConstraint> CollisionFinder::FindCollisions(const vector<MyShape*> &shapes)
+vector<ContactConstraint> CollisionFinder::FindCollisions(vector<MyShape*> &shapes)
 {
     int i=-1,j;
     std::vector<ContactConstraint> constraints;
@@ -160,8 +180,8 @@ vector<ContactConstraint> CollisionFinder::FindCollisions(const vector<MyShape*>
         j=i;
         for(vector<MyShape *>::const_iterator it_j=it_i+1;it_j<shapes.end();it_j++){
             j++;
-            const MyShape* a=*it_i;
-            const MyShape* b=*it_j;
+            MyShape* a=*it_i;
+            MyShape* b=*it_j;
             if(!shouldContact(*a,*b))continue;
             if(TestAABBAABB(a->aabb,b->aabb))
             {
@@ -177,15 +197,21 @@ vector<ContactConstraint> CollisionFinder::FindCollisions(const vector<MyShape*>
     return constraints;
 }
 
+void CollisionFinder::setDebugDrawer(GraphicManager *debugDrawer)
+{
+    this->debugDrawer=debugDrawer;
+}
+
 CollisionFinder::CollisionFinder()
 {
-
+    this->debugDrawer=0;
 }
 
-CollisionFinder::~CollisionFinder()
+void CollisionFinder::turnOnDebugDraw()
 {
-
+    debugDraw=true;
 }
+
 void CollisionFinder::clipSegment(Vector2& l1,Vector2& l2,Vector2 clipPoint,Vector2 n){
     double a,b,c;
     Vector2 t=l2-l1;
@@ -210,9 +236,9 @@ void CollisionFinder::getMinFromProjection(const vector<Vector2> &v, Vector2 n, 
         }
     }
 }
-bool CollisionFinder::SATPolygon(const MyPolygon *pa, const MyPolygon *pb, Vector2& n, Vector2& point1, Vector2& point2,int& numOfContact,ContactConstraint::Type& contactType,Vector2& facePoint){
-    const MyPolygon &a=*pa;
-    const MyPolygon &b=*pb;
+bool CollisionFinder::SATPolygon(MyPolygon *pa, MyPolygon *pb, Vector2& n, Vector2& contactPoint1, Vector2& contactPoint2, int& numOfContact, ContactConstraint::Type& contactType, Vector2& facePoint){
+    MyPolygon &a=*pa;
+    MyPolygon &b=*pb;
     double mina,minb,maxa,maxb,d1,d2,temp;
     double depth=1e15;
     bool referenceIsA=false;
@@ -221,10 +247,11 @@ bool CollisionFinder::SATPolygon(const MyPolygon *pa, const MyPolygon *pb, Vecto
     Vector2 normal;
     //reference A
     vector<Vector2>::const_iterator min_i,p,p_prev,p_next;
-    for(vector<Vector2>::const_iterator i=a.vertex.begin();i<a.vertex.end()-1;i++){
-        normal=*(i+1)-*i;
-        normal=normal/sqrt(normal*normal);
-        rotate90clockwise(normal);
+    vector<Vector2>::const_iterator i,iN,j;
+
+    a.updateNormal();
+    for(i=a.vertex.begin(),iN=a.normal.begin();i<a.vertex.end()-1;i++,iN++){
+        normal=*iN;
         getMinFromProjection(b.vertex,normal,minb,min_i);
         maxa=normal*(*i);
         temp=maxa-minb;
@@ -238,11 +265,12 @@ bool CollisionFinder::SATPolygon(const MyPolygon *pa, const MyPolygon *pb, Vecto
         }
 
     }
-    //A.end
-    vector<Vector2>::const_iterator i=a.vertex.end()-1,j=a.vertex.begin();
-    normal=*j-*i;
-    normal=normal/sqrt(normal*normal);
-    rotate90clockwise(normal);
+    //last edge of shapeA: i=vertex.end()-1----->vertex.begin()
+    //in fact here we have
+    //i=a.vertex.end()-1
+    //iN=a.normal.end()-1
+    j=a.vertex.begin();
+    normal=*iN;
     getMinFromProjection(b.vertex,normal,minb,min_i);
     maxa=normal*(*i);
     temp=maxa-minb;
@@ -255,11 +283,10 @@ bool CollisionFinder::SATPolygon(const MyPolygon *pa, const MyPolygon *pb, Vecto
         p=min_i;
     }
 
-    //reference B
-    for(vector<Vector2>::const_iterator i=b.vertex.begin();i<b.vertex.end()-1;i++){
-        normal=*(i+1)-*i;
-        normal=normal/sqrt(normal*normal);
-        rotate90clockwise(normal);
+    //------------reference B---------------------------
+    b.updateNormal();
+    for(i=b.vertex.begin(),iN=b.normal.begin();i<b.vertex.end()-1;i++,iN++){
+        normal=*iN;
         getMinFromProjection(a.vertex,normal,mina,min_i);
         maxb=normal*(*i);
         temp=maxb-mina;
@@ -273,12 +300,12 @@ bool CollisionFinder::SATPolygon(const MyPolygon *pa, const MyPolygon *pb, Vecto
         }
 
     }
-    //B.end
-    i=b.vertex.end()-1;
+    //last edge of shapeB: i=vertex.end()-1----->vertex.begin()
+    //in fact here we have
+    //i=b.vertex.end()-1
+    //iN=b.normal.end()-1
     j=b.vertex.begin();
-    normal=*j-*i;
-    normal=normal/sqrt(normal*normal);
-    rotate90clockwise(normal);
+    normal=*iN;
     getMinFromProjection(a.vertex,normal,mina,min_i);
     maxb=normal*(*i);
     temp=maxb-mina;
@@ -337,19 +364,19 @@ bool CollisionFinder::SATPolygon(const MyPolygon *pa, const MyPolygon *pb, Vecto
     contactType=referenceIsA?ContactConstraint::faceA : ContactConstraint::faceB;
     facePoint=refP1;
     if(incP1*n>refP1*n){
-        point1=incP2;
+        contactPoint1=incP2;
         numOfContact=1;
         //n: A->B
         n=referenceIsA?n:-n;
         return true;
     }else if(incP2*n>refP1*n){
-        point1=incP1;
+        contactPoint1=incP1;
         numOfContact=1;
         n=referenceIsA?n:-n;
         return true;
     }else{
-        point1=incP1;
-        point2=incP2;
+        contactPoint1=incP1;
+        contactPoint2=incP2;
         numOfContact=2;
         n=referenceIsA?n:-n;
         return true;
@@ -358,7 +385,99 @@ bool CollisionFinder::SATPolygon(const MyPolygon *pa, const MyPolygon *pb, Vecto
 
 }
 
-bool CollisionFinder::SATPolygonCircle(const MyPolygon *pa, const MyCircle *pb, Vector2 &n, Vector2 &point1, Vector2 &point2, int &numOfContact, ContactConstraint::Type &contactType, Vector2 &facePoint)
+bool CollisionFinder::SATCircle(MyCircle *pa, MyCircle *pb, Vector2 &n, Vector2 &contactPoint)
 {
+    MyCircle &cirA=*pa;
+    MyCircle &cirB=*pb;
+    Vector2 centerAB=cirB.center-cirA.center;
+    double radius2=cirA.radius+cirB.radius;
+    if(centerAB*centerAB>radius2*radius2){
+        return false;
+    }
+    double distance=sqrt(centerAB*centerAB);
+    n=centerAB/distance;
+    contactPoint=cirA.center+(cirA.radius-cirB.radius+distance)/2*n;
+}
+
+bool CollisionFinder::SATPolygonCircle(MyPolygon *pa, MyCircle *pb, Vector2 &n, Vector2 &contactPoint, Vector2 &facePoint)
+{
+    MyPolygon &poly=*pa;
+    MyCircle &cir=*pb;
+    double temp;
+    double depth=1e15;
+    bool referenceIsA=false;
+    Vector2 refP1,refP2;
+    Vector2 normal;
+    double radius=cir.radius;
+    Vector2 cCenter=cir.center;
+    //reference Polygon
+    vector<Vector2>::const_iterator i,iN,j;
+
+    poly.updateNormal();
+    for(i=poly.vertex.begin(),iN=poly.normal.begin();i<poly.vertex.end()-1;i++,iN++){
+        normal=*iN;
+        temp=radius-normal*(cCenter-*i);
+        if(temp<0)return false;
+        else if(temp<depth){
+            n=normal;
+            depth=temp;
+            referenceIsA=true;
+            refP1=*i;refP2=*(i+1);
+        }
+    }
+    //last edge of Poly: i=vertex.end()-1----->vertex.begin()
+    //in fact here we have
+    //i=poly.vertex.end()-1
+    //iN=poly.normal.end()-1
+    j=poly.vertex.begin();
+    normal=*iN;
+    temp=radius-normal*(cCenter-*i);
+    if(temp<0)return false;
+    else if(temp<depth){
+        n=normal;
+        depth=temp;
+        referenceIsA=true;
+        refP1=*i;refP2=*j;
+    }
+
+    //here we find one collision and the normal of edge
+
+    //if circle center is in the Poly
+    if(depth>radius){
+        facePoint=refP1;
+        contactPoint=cCenter;
+        return true;
+    }
+    Vector2 P1_center=cCenter-refP1;
+    Vector2 P2_center=cCenter-refP2;
+    double limit1=P1_center*(refP2-refP1);
+    double limit2=P2_center*(refP1-refP2);
+
+    if(limit1<=0){
+        //Circle - Vertex contact
+        if(P1_center*P1_center>radius*radius){
+            return false;
+        }
+        n=P1_center;
+        n.normalize();
+        facePoint=refP1;
+        contactPoint=refP1;
+        return true;
+    }else if(limit2<=0){
+        //Circle - Vertex contact
+        if(P2_center*P2_center>radius*radius){
+            return false;
+        }
+        n=P2_center;
+        n.normalize();
+        facePoint=refP2;
+        contactPoint=refP2;
+        return true;
+    }else{
+        //Circle - Edge contact
+        facePoint=refP1;//or refP2, the same after facepoint*normal
+        contactPoint=cCenter-radius*n;
+    }
+
 
 }

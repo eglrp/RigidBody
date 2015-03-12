@@ -14,14 +14,28 @@ std::vector<MyShape *> ShapeManager::getShapeList()
     return shapeVector;
 }
 
-MyPolygon *ShapeManager::creatPoly(const ShapeDefinition& shapeDef)
+void ShapeManager::creatShape(const ShapeDefinition &sDef)
 {
-    assert(shapeDef.vertexList.size()>=3);
-    assert(shapeDef.mass>0);
+    switch (sDef.shapeType) {
+    case POLYGON:
+        creatPoly(sDef);
+        break;
+    case CIRCLE:
+        creatCircle(sDef);
+        break;
+    default:
+        exit(0);
+    }
+}
+
+void ShapeManager::creatPoly(const ShapeDefinition& shapeDef)
+{
+    if(shapeDef.vertexList.size()<3)return;
+    assert(shapeDef.mass>0||shapeDef.density>0);
     assert(shapeDef.friction>=0);
     assert(shapeDef.restitution>0);
     assert(shapeDef.shapeType==POLYGON);
-    MyPolygon* p=new MyPolygon(shapeDef.mass,shapeDef.vertexList);
+    MyPolygon* p=new MyPolygon(shapeDef.vertexList,shapeDef.mass,shapeDef.density);
     p->move(shapeDef.move);
     p->angVel=shapeDef.angVel;
     p->rotate(shapeDef.rotate);
@@ -37,17 +51,16 @@ MyPolygon *ShapeManager::creatPoly(const ShapeDefinition& shapeDef)
         p->vel=Vector2(0,0);
     }
     shapeList.push_back(p);
-    return p;
 }
 
-MyCircle *ShapeManager::creatCircle(const ShapeDefinition &shapeDef)
+void ShapeManager::creatCircle(const ShapeDefinition &shapeDef)
 {
-    assert(shapeDef.mass>0);
+    assert(shapeDef.mass>0||shapeDef.density>0);
     assert(shapeDef.friction>=0);
     assert(shapeDef.restitution>0);
     assert(shapeDef.radius>0);
     assert(shapeDef.shapeType==CIRCLE);
-    MyCircle* p=new MyCircle(shapeDef.radius,shapeDef.circleCenter,shapeDef.mass);
+    MyCircle* p=new MyCircle(shapeDef.radius,shapeDef.circleCenter,shapeDef.mass,shapeDef.density);
     p->move(shapeDef.move);
     p->angVel=shapeDef.angVel;
     p->rotate(shapeDef.rotate);
@@ -63,7 +76,6 @@ MyCircle *ShapeManager::creatCircle(const ShapeDefinition &shapeDef)
         p->vel=Vector2(0,0);
     }
     shapeList.push_back(p);
-    return p;
 }
 
 void ShapeManager::moveAllShape(double dt)
@@ -131,4 +143,5 @@ ShapeDefinition::ShapeDefinition()
     restitution=0.5;
     friction=0.5;
     radius=1;
+    density=0;
 }

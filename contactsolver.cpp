@@ -1,7 +1,8 @@
 #include "contactsolver.h"
 #include <iostream>
-//#define MY_DEBUG
-#define DEBUG_TIME_INTERVAL 30
+#include "graphics.h"
+#define MY_DEBUG
+#define DEBUG_TIME_INTERVAL 20
 using namespace std;
 void ContactSolver::OneVelocitySolveIteration(vector<ContactConstraint> &allConstraints, std::vector<MyShape *> &shapes)
 {
@@ -68,12 +69,6 @@ void ContactSolver::OneVelocitySolveIteration(vector<ContactConstraint> &allCons
             avA-=iIA*crossProd2D(cp.rA,P);
             vB+=iMB*P;
             avB+=iIB*crossProd2D(cp.rB,P);
-            //DEBUG
-            //myDrawPoint(cp.position);
-
-
-
-            //~DEBUG
         }else{
             //pointCount==2, that means we have two contacts between two shapes
             //|---------------------------------------------------|
@@ -101,13 +96,6 @@ void ContactSolver::OneVelocitySolveIteration(vector<ContactConstraint> &allCons
             // b' = b - A * a;
             ContactPoint &cp1=cc.points[0];
             ContactPoint &cp2=cc.points[1];
-            //DEBUG
-            //myDrawPoint(cp1.position);
-            //myDrawPoint(cp2.position);
-
-
-
-            //~DEBUG
             Vector2 f(cp1.normalImpulse,cp2.normalImpulse);
             Vector2 dv1=vB+crossProd2D(avB,cp1.rB)-vA-crossProd2D(avA,cp1.rA);
             Vector2 dv2=vB+crossProd2D(avB,cp2.rB)-vA-crossProd2D(avA,cp2.rA);
@@ -248,25 +236,29 @@ void ContactSolver::OneVelocitySolveIteration(vector<ContactConstraint> &allCons
         a.angVel=avA;
         b.vel=vB;
         b.angVel=avB;
+
 #ifdef MY_DEBUG
-        noRefreshPush();
-        myDisplay();
-        for(int j=0;j<pointCount;j++){
-            ContactPoint& cp=cc.points[j];
-            Vector2 po=cp.position;
-            double lengthN=max(0.5,cp.normalImpulse);
-            double lengthT=max(0.5,cp.tangentImpulse);
-            Vector2 poNormal=po+n*lengthN/5;
-            Vector2 poNormal2=po-n*lengthN/5;
-            Vector2 poTangent=po+t*lengthT/5;
-            Vector2 poTangent2=po-t*lengthT/5;
-            myDrawPoint(po,2,GREEN);
-            myDrawLine(poNormal2.x,poNormal2.y,poNormal.x,poNormal.y,GREEN,2);
-            myDrawLine(poTangent2.x,poTangent2.y,poTangent.x,poTangent.y,RED,2);
+        if(debugDraw){
+            debugDrawer->myNoRefreshPush();
+            debugDrawer->myDisplay(shapes);
+            for(int j=0;j<pointCount;j++){
+                ContactPoint& cp=cc.points[j];
+                Vector2 po=cp.position;
+                double lengthN=max(0.5,cp.normalImpulse);
+                double lengthT=max(0.5,cp.tangentImpulse);
+                Vector2 poNormal=po+n*lengthN/5;
+                Vector2 poNormal2=po-n*lengthN/5;
+                Vector2 poTangent=po+t*lengthT/5;
+                Vector2 poTangent2=po-t*lengthT/5;
+                debugDrawer->myDrawPoint(po,2,Imagine::GREEN);
+                debugDrawer->myDrawLine(poNormal2.x,poNormal2.y,poNormal.x,poNormal.y,Imagine::GREEN,2);
+                debugDrawer->myDrawLine(poTangent2.x,poTangent2.y,poTangent.x,poTangent.y,Imagine::RED,2);
+            }
+            debugDrawer->myNoRefreshPop();
+            debugDrawer->myMilliSleep(DEBUG_TIME_INTERVAL);
         }
-        noRefreshPop();
-        milliSleep(DEBUG_TIME_INTERVAL);
 #endif
+
     }//loop for allContacts
 }
 
@@ -308,8 +300,13 @@ bool ContactSolver::OnePositionSolveIteration(std::vector<ContactConstraint> &al
 
                 n=transA.r.Apply(cc.localNormal);
                 Vector2 facePoint=transA.Apply(cc.localFacePoint);
-                sepPoint=transB.Apply(cc.localContact[j]);
+                if(b.shapeType==CIRCLE){
+                    sepPoint=b.center-n*b.radius;
+                }else{
+                    sepPoint=transB.Apply(cc.localContact[j]);
+                }
                 separation=(sepPoint-facePoint)*n;
+                //separation < 0 if overlap
             }
                 break;
             case ContactConstraint::faceB:
@@ -317,16 +314,24 @@ bool ContactSolver::OnePositionSolveIteration(std::vector<ContactConstraint> &al
 
                 n=transB.r.Apply(cc.localNormal);
                 Vector2 facePoint=transB.Apply(cc.localFacePoint);
-                sepPoint=transA.Apply(cc.localContact[j]);
+                if(a.shapeType==CIRCLE){
+                    sepPoint=a.center+n*b.radius;
+                }else{
+                    sepPoint=transA.Apply(cc.localContact[j]);
+                }
                 separation=(facePoint-sepPoint)*n;
+                separation-=a.radius;
 
             }
                 break;
             case ContactConstraint::circles:
             {
-                //
-                //
-                //Unfinished
+
+                n=b.center-a.center;
+                double distance=sqrt(n*n);
+                n.normalize();
+                sepPoint=(a.center+b.center)/2;
+                separation=distance-a.radius-b.radius;
             }
                 break;
             default:
@@ -362,23 +367,26 @@ bool ContactSolver::OnePositionSolveIteration(std::vector<ContactConstraint> &al
         b.center=cB;
         a.angle=avA;
         b.angle=avB;
+
 #ifdef MY_DEBUG
-        a.updateVertex();
-        b.updateVertex();
-        noRefreshPush();
-        myDisplay();
-        for(int j=0;j<pointCount;j++){
-            ContactPoint& cp=cc.points[j];
-            Vector2 po=sep[j];
-            Vector2 poA=po+nImpulse[j];
-            Vector2 poB=po-nImpulse[j];
-            myDrawPoint(po,2,BLUE);
-            myDrawLine(po.x,po.y,poA.x,poA.y,BLUE,2);
-            myDrawLine(po.x,po.y,poB.x,poB.y,BLUE,2);
+        if(debugDraw){
+            a.updateVertex();
+            b.updateVertex();
+            debugDrawer->myNoRefreshPush();
+            debugDrawer->myDisplay(shapes);
+            for(int j=0;j<pointCount;j++){
+                ContactPoint& cp=cc.points[j];
+                Vector2 po=sep[j];
+                Vector2 poA=po+nImpulse[j];
+                Vector2 poB=po-nImpulse[j];
+                debugDrawer->myDrawPoint(po,2,Imagine::BLUE);
+                debugDrawer->myDrawLine(po.x,po.y,poA.x,poA.y,Imagine::BLUE,2);
+                debugDrawer->myDrawLine(po.x,po.y,poB.x,poB.y,Imagine::BLUE,2);
+            }
+            debugDrawer->myNoRefreshPop();
+            debugDrawer->myMilliSleep(DEBUG_TIME_INTERVAL);
+            //cout<<a.ID<<"-"<<b.ID<<endl;
         }
-        noRefreshPop();
-        milliSleep(DEBUG_TIME_INTERVAL);
-        //cout<<a.ID<<"-"<<b.ID<<endl;
 #endif
 
     }
@@ -392,9 +400,11 @@ void ContactSolver::SolveVel(vector<ContactConstraint> &allConstraints, std::vec
     for(int i=0;i<velIterations;i++){
         OneVelocitySolveIteration(allConstraints,shapes);
     }
+
 #ifdef MY_DEBUG
-    //milliSleep(500);
-    //~DEBUG
+    if(debugDraw){
+        debugDrawer->myMilliSleep(50);
+    }
 #endif
 }
 
@@ -418,11 +428,22 @@ void ContactSolver::integratePosAndVel(std::vector<MyShape *> &shapes, double dt
     }
 }
 
+void ContactSolver::turnOnDebugDraw()
+{
+    debugDraw=true;
+}
+
 void ContactSolver::FindAndSolve(vector<MyShape*>& shapeList, double dt)
 {
-    CollisionFinder colliFinder;
     vector<ContactConstraint> c;
+
+    CollisionFinder colliFinder;
+    if(debugDraw){
+        colliFinder.setDebugDrawer(debugDrawer);
+        colliFinder.turnOnDebugDraw();
+    }
     c=colliFinder.FindCollisions(shapeList);
+
     SolveVel(c,shapeList);
     integratePosAndVel(shapeList,dt);
     SolvePos(c,shapeList);
@@ -432,12 +453,19 @@ void ContactSolver::FindAndSolve(vector<MyShape*>& shapeList, double dt)
     }
 }
 
+void ContactSolver::setDebugDrawer(GraphicManager *debugDrawer)
+{
+    this->debugDrawer=debugDrawer;
+}
+
 
 
 ContactSolver::ContactSolver(int VelIterations, int PosIterations)
 {
     velIterations=VelIterations;
     posIterations=PosIterations;
+    debugDrawer=0;
+    debugDraw=false;
 }
 
 

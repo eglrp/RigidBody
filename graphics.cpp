@@ -23,38 +23,46 @@ GraphicManager::GraphicManager(int windowW,int windowH):
 
 }
 
-void GraphicManager::myDisplay(std::vector<MyShape *> shapeList, double dt, bool DebugDrawing, Imagine::Color col)
+void GraphicManager::coordTranslate(double x, double y, int &x_onScreen, int &y_onScreen)
+{
+    viewLayout.coordTranslate(x,y,x_onScreen,y_onScreen);
+}
+
+void GraphicManager::coordTranslateInverse(int x_onScreen, int y_onScreen, double &realX, double &realY)
+{
+    viewLayout.coordTranslateInverse(x_onScreen,y_onScreen,realX,realY);
+}
+
+void GraphicManager::myDisplay(std::vector<MyShape *> shapeList, Imagine::Color col)
 {
     Imagine::noRefreshPush();
     Imagine::setBackGround(Imagine::WHITE);
     drawAxis();
-    if(DebugDrawing){
-        for(vector<MyShape*>::iterator i=shapeList.begin();i<shapeList.end();i++){
-            MyShape* s=*i;
-            switch (s->shapeType) {
-            case POLYGON:
-            {
-                MyPolygon* sP=static_cast<MyPolygon*>(s);
-                MyPolygon tempPoly(*sP);
-                tempPoly.makeMove(dt);
-                draw_each(&tempPoly,Imagine::RED,false);
-                break;
-            }
-            case CIRCLE:
-            {
-                MyCircle* sP=static_cast<MyCircle*>(s);
-                MyCircle tempCircle(*sP);
-                tempCircle.makeMove(dt);
-                draw_each(&tempCircle,Imagine::RED,false);
-            }
-                break;
-            default:
-                break;
-            }
-
-
-        }
-    }
+//    if(DebugDrawing){
+//        for(vector<MyShape*>::iterator i=shapeList.begin();i<shapeList.end();i++){
+//            MyShape* s=*i;
+//            switch (s->shapeType) {
+//            case POLYGON:
+//            {
+//                MyPolygon* sP=static_cast<MyPolygon*>(s);
+//                MyPolygon tempPoly(*sP);
+//                tempPoly.makeMove(dt);
+//                draw_each(&tempPoly,Imagine::RED,false);
+//                break;
+//            }
+//            case CIRCLE:
+//            {
+//                MyCircle* sP=static_cast<MyCircle*>(s);
+//                MyCircle tempCircle(*sP);
+//                tempCircle.makeMove(dt);
+//                draw_each(&tempCircle,Imagine::RED,false);
+//            }
+//                break;
+//            default:
+//                break;
+//            }
+//        }
+//    }
     for(vector<MyShape*>::iterator i=shapeList.begin();i<shapeList.end();i++){
         draw_each(*i,col,true);
     }
@@ -138,13 +146,28 @@ void GraphicManager::myDrawLine(double x1,double y1,double x2,double y2, Imagine
     Imagine::drawLine(xx1,yy1,xx2,yy2,col,penWidth);
 }
 
+void GraphicManager::myNoRefreshPush()
+{
+    Imagine::noRefreshPush();
+}
+
+void GraphicManager::myNoRefreshPop()
+{
+    Imagine::noRefreshPop();
+}
+
+void GraphicManager::myMilliSleep(int milliSec)
+{
+    Imagine::milliSleep(milliSec);
+}
+
 
 
 
 
 ViewLayout::ViewLayout(int windowWidth,int windowHeight)
 {
-    oneMeterLengthOnScreen=50;
+    oneMeterLengthOnScreen=75;
     winWidth=windowWidth;
     winHeight=windowHeight;
     viewCenter=Vector2(0,0);
