@@ -35,6 +35,7 @@ struct FileWorldDefinition{
     FileWorldDefinition();
 };
 
+
 class FileReader{
     void readShape(std::ifstream& inFile,ShapeManager& shapeManager);
     void readSetting(std::ifstream& inFile,FileWorldDefinition& fSettings);

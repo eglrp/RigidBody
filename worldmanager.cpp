@@ -46,3 +46,17 @@ void WorldManager::setDebugDrawer(GraphicManager *debugDrawer)
     this->debugDrawer=debugDrawer;
 }
 
+void WorldManager::turnOnDebugDraw()
+{
+    if(debugDrawer==0){
+        std::cout<<"please give a DebugDrawer to WorldManager"<<std::endl;
+        exit(0);
+    }
+    simulator.turnOnDebugDraw();
+}
+
+void WorldManager::turnOffDebugDraw()
+{
+    simulator.turnOffDebugDraw();
+}
+

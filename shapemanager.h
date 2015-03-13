@@ -27,6 +27,7 @@ public:
     void moveAllShape(double dt);
     void applyGravity(Vector2 gravity);
     void clearAllForce();
+    void deleteShape(MyShape* pShape);
     ~ShapeManager();
 };
 

@@ -103,6 +103,16 @@ void ShapeManager::clearAllForce()
     }
 }
 
+void ShapeManager::deleteShape(MyShape *pShape)
+{
+    for(std::list<MyShape*>::iterator i=shapeList.begin();i!=shapeList.end();i++){
+        if(*i==pShape){
+            shapeList.erase(i);
+            return;
+        }
+    }
+}
+
 ShapeManager::~ShapeManager()
 {
     for(std::list<MyShape*>::iterator i=shapeList.begin();i!=shapeList.end();i++){

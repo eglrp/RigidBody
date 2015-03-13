@@ -25,4 +25,9 @@ void Simulator::turnOnDebugDraw()
     debugDraw=true;
 }
 
+void Simulator::turnOffDebugDraw()
+{
+    debugDraw=false;
+}
+
 

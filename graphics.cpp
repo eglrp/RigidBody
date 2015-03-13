@@ -38,31 +38,7 @@ void GraphicManager::myDisplay(std::vector<MyShape *> shapeList, Imagine::Color 
     Imagine::noRefreshPush();
     Imagine::setBackGround(Imagine::WHITE);
     drawAxis();
-//    if(DebugDrawing){
-//        for(vector<MyShape*>::iterator i=shapeList.begin();i<shapeList.end();i++){
-//            MyShape* s=*i;
-//            switch (s->shapeType) {
-//            case POLYGON:
-//            {
-//                MyPolygon* sP=static_cast<MyPolygon*>(s);
-//                MyPolygon tempPoly(*sP);
-//                tempPoly.makeMove(dt);
-//                draw_each(&tempPoly,Imagine::RED,false);
-//                break;
-//            }
-//            case CIRCLE:
-//            {
-//                MyCircle* sP=static_cast<MyCircle*>(s);
-//                MyCircle tempCircle(*sP);
-//                tempCircle.makeMove(dt);
-//                draw_each(&tempCircle,Imagine::RED,false);
-//            }
-//                break;
-//            default:
-//                break;
-//            }
-//        }
-//    }
+
     for(vector<MyShape*>::iterator i=shapeList.begin();i<shapeList.end();i++){
         draw_each(*i,col,true);
     }
@@ -161,13 +137,20 @@ void GraphicManager::myMilliSleep(int milliSec)
     Imagine::milliSleep(milliSec);
 }
 
+void GraphicManager::ajustViewZoom(Vector2 move, double zoom)
+{
+    viewLayout.viewCenter+=move;
+    viewLayout.oneMeterLengthOnScreen*=zoom;
+    viewLayout.UpdateViewZone();
+}
+
 
 
 
 
 ViewLayout::ViewLayout(int windowWidth,int windowHeight)
 {
-    oneMeterLengthOnScreen=75;
+    oneMeterLengthOnScreen=25;
     winWidth=windowWidth;
     winHeight=windowHeight;
     viewCenter=Vector2(0,0);

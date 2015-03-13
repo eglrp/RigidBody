@@ -1,6 +1,7 @@
 ﻿#include "readFile.h"
 #include "shapemanager.h"
 using namespace std;
+bool readOneWord(ifstream& inFile,string& s);
 bool readOneLine(ifstream& inFile, stringstream &ss);
 void readTwoNumberForProperty(ifstream& inFile,const string& nameOfProperty,double& x,double& y){
     inFile>>x>>y;
@@ -257,3 +258,5 @@ FileWorldDefinition::FileWorldDefinition()
     speed=1;
     debugMode=false;
 }
+
+

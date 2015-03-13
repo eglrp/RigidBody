@@ -16,6 +16,7 @@ public:
     Simulator(int velocityIterations,int positionIterations);
     void solve(std::vector<MyShape*>& shapeList,double dt,GraphicManager* debugDrawer);
     void turnOnDebugDraw();
+    void turnOffDebugDraw();
 
 };
 

@@ -26,6 +26,8 @@ public:
     ShapeManager* getShapeManager(){
         return &shapeManager;
     }
+    void turnOnDebugDraw();
+    void turnOffDebugDraw();
 
     double getRecommendFrameTime(){
         return recommendFrameTime;

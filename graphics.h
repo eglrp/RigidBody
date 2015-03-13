@@ -39,6 +39,8 @@ public:
     void myNoRefreshPop();
     void myMilliSleep(int milliSec);
 
+    void ajustViewZoom(Vector2 move,double zoom);
+
 };
 
 

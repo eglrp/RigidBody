@@ -12,6 +12,7 @@ struct Button{
     int x,y,w,h;
     bool state;
     std::string name;
+    std::string description;
 };
 class Functionality{
 private:
@@ -66,29 +67,74 @@ public:
 };
 class FunCircle:public Functionality{
 private:
+    Vector2 center;
+    bool centerCreated;
 public:
-    FunCircle(Button button):Functionality(button){}
+    FunCircle(Button button):Functionality(button){centerCreated=false;}
     FunCircle(){}
     void start(){}
     void terminate(){}
-    void takeAction(){}
+    void takeAction();
+};
+class FunView:public Functionality{
+private:
+    Vector2 mousePoint;
+    int lastY;
+    bool moving;
+    bool zooming;
+public:
+    FunView(Button button):Functionality(button){
+        moving=false;
+        zooming=false;
+    }
+    FunView(){}
+    void start(){}
+    void terminate(){}
+    void takeAction();
+};
+class FunDelete:public Functionality{
+private:
+    MyShape* findTargetShape(Vector2 v, std::vector<MyShape *> &shapeList);
+public:
+    FunDelete(Button button):Functionality(button){}
+    FunDelete(){}
+    void start(){}
+    void terminate(){}
+    void takeAction();
+};
+class FunDebug:public Functionality{
+private:
+    bool debugMode;
+    bool turnOffDebugAfterOneFrame;
+    WorldManager* wM;
+public:
+    void setWorldManager(WorldManager* wM);
+    FunDebug(Button button):Functionality(button){debugMode=false;turnOffDebugAfterOneFrame=true;}
+    FunDebug(){}
+    void start(){}
+    void terminate(){}
+    void takeAction();
+    void autoTurnOff();
 };
 
 class UserUI
 {
-    enum CurrentAction{Free,Drag,Poly,Circle};
+    enum CurrentAction{Free,Drag,Poly,Circle,View,Delete};
     CurrentAction currentAction;
     ShapeManager* shapeManager;
     GraphicManager* drawer;
-
+    WorldManager* worldManager;
     FunDrag funDrag;
     FunPoly funPoly;
     FunCircle funCircle;
+    FunView funView;
+    FunDelete funDelete;
+    FunDebug funDebug;
     void flushAllEvents();
     void drawOneButton(Button b);
 public:
 
-    UserUI(ShapeManager* sM,GraphicManager* gM);
+    UserUI(ShapeManager* sM,GraphicManager* gM,WorldManager* wM);
 
     void treatEvents();
     void drawButtons();
