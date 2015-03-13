@@ -1,0 +1,151 @@
+gravity: 0 -10
+speed: 1
+frequency: 60
+debug: 1   
+
+
+endsetting
+
+Polygon
+vertex:
+-5 0
+5 0
+5 1
+-5 1
+move:
+0 -5
+vel:
+0 0
+fix:
+1
+end
+
+Polygon
+vertex:
+0 0
+1 0
+1 1
+0 1
+move:
+1.2 -2
+vel:
+0 0.1
+ang_vel:
+0
+fix:
+0
+rotate:
+0.785
+mass:
+2
+end
+
+Polygon
+vertex:
+0 0
+1 0
+1 1
+0 1
+move:
+0 0
+vel:
+0 0
+end
+
+Polygon
+vertex:
+0 0
+1 0
+1 1
+0 1
+move:
+1.5 0
+vel:
+0 0
+end
+
+Polygon
+vertex:
+0 0
+1 0
+1 1
+0 1
+move:
+2.5 0
+vel:
+0 0
+end
+
+Polygon
+vertex:
+0 0
+1 0
+1 1
+0 1
+move:
+0 1.5
+vel:
+0 0
+end
+
+Polygon
+vertex:
+0 0
+1 0
+1 1
+0 1
+move:
+1.5 1.5
+vel:
+0 0
+end
+
+Polygon
+vertex:
+0 0
+1 0
+1 1
+0 1
+move:
+3 1.5
+vel:
+0 0
+end
+
+Polygon
+vertex:
+0 0
+1 0
+1 1
+0 1
+move:
+0 3
+vel:
+0 0
+end
+
+Polygon
+vertex:
+0 0
+1 0
+1 1
+0 1
+move:
+1.5 3
+vel:
+0 0
+end
+
+Polygon
+vertex:
+0 0
+1 0
+1 1
+0 1
+move:
+3 3
+vel:
+0 0
+end
+
+
