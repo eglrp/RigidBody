@@ -180,7 +180,6 @@ void FileReader::readFile(string fileName, FileWorldDefinition &fSettings, Shape
     }
     readSetting(inFile,fSettings);
     readShape(inFile,shapeManager);
-
 }
 
 

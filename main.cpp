@@ -13,7 +13,7 @@ int main()
     int width,height;
 
     //Window size
-    width=height=500;
+    width=height=800;
 
     //Create managers: GraphicManager, WorldManager UserUIManager
     //And link them
@@ -47,7 +47,7 @@ int main()
 
             //Graphic ask World for the shapeList, and he draw all the shapes
             graphicManager.myDisplay(worldManager.getShapeList());
-            graphicManager.savePrintScreen();
+            //graphicManager.savePrintScreen();
             //World run one step of simulation
             worldManager.OneStep();
 
