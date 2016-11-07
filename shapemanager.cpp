@@ -1,5 +1,6 @@
 #include "shapemanager.h"
-
+#include <stdexcept>
+using namespace std;
 ShapeManager::ShapeManager()
 {
     shapeCount=0;
@@ -24,7 +25,7 @@ void ShapeManager::creatShape(const ShapeDefinition &sDef)
         creatCircle(sDef);
         break;
     default:
-        exit(0);
+        throw logic_error("unknown shape type");
     }
 }
 

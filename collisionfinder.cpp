@@ -1,4 +1,5 @@
 #include "collisionfinder.h"
+#include <stdexcept>
 using namespace std;
 
 
@@ -48,7 +49,7 @@ bool CollisionFinder::SATtwoShape(MyShape *a,MyShape *b, Vector2 &n, Vector2 &co
 
     }else{
         cout<<"unknown shapetype"<<endl;
-        exit(0);
+        throw logic_error("unknown shapetype");
     }
 }
 

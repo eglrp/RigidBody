@@ -1,5 +1,6 @@
 ﻿#include "readFile.h"
 #include "shapemanager.h"
+#include <stdexcept>
 using namespace std;
 bool readOneWord(ifstream& inFile,string& s);
 bool readOneLine(ifstream& inFile, stringstream &ss);
@@ -7,14 +8,14 @@ void readTwoNumberForProperty(ifstream& inFile,const string& nameOfProperty,doub
     inFile>>x>>y;
     if(!inFile){
         cout<<"fail to load property: "<<nameOfProperty<<endl;
-        exit(1);
+        throw logic_error("unknown shape type");
     }
 }
 void readOneNumberForProperty(ifstream& inFile,const string& nameOfProperty,double& x){
     inFile>>x;
     if(!inFile){
         cout<<"fail to load property: "<<nameOfProperty<<endl;
-        exit(1);
+        throw logic_error("fail to load property: ");
     }
 }
 bool readOneWord(ifstream& inFile,string& s){
@@ -77,7 +78,7 @@ void FileReader::readShape(ifstream &inFile, ShapeManager &shapeManager)
                 inFile.clear();
                 if (fDef.vertexList.size()<3) {
                     cout<<"number of vertex is less than 3 !";
-                    exit(1);
+                    throw logic_error("number of vertex is less than 3 !");
                 }
             }
             else if (0==s.compare("vel:")) {
@@ -87,14 +88,14 @@ void FileReader::readShape(ifstream &inFile, ShapeManager &shapeManager)
                 readOneNumberForProperty(inFile,"mass",fDef.mass);
                 if(fDef.mass<=0){
                     cout<<"mass should be positive"<<endl;
-                    exit(0);
+                    throw logic_error("mass should be positive");
                 }
                 fDef.density=0;//abandon density
             }else if (0==s.compare("density:")) {
                 readOneNumberForProperty(inFile,"density",fDef.density);
                 if(fDef.density<=0){
                     cout<<"density should be positive"<<endl;
-                    exit(0);
+                    throw logic_error("density should be positive");
                 }
                 fDef.mass=0;//abandon mass
             }
@@ -135,7 +136,7 @@ void FileReader::readShape(ifstream &inFile, ShapeManager &shapeManager)
             }
             else {
                 cout<<"Unknown property:"<<s<<endl;
-                exit(1);
+                throw logic_error("Unknown property:");
             }
         }
     }
@@ -165,7 +166,8 @@ void FileReader::readSetting(ifstream &inFile, FileWorldDefinition &fSettings)
         }
         else {
             cout<<"Unknown setting:"<<s<<endl;
-            exit(1);
+
+            throw logic_error("Unknown setting:");
         }
     }
 }

@@ -4,6 +4,8 @@
 #include <Imagine/Graphics.h>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
+#include <sstream>
 //#include <sstream>
 
 using namespace std;
@@ -96,7 +98,10 @@ void GraphicManager::myDrawPolygon(MyPolygon &p, Imagine::Color col,bool drawID)
 }
 
 void GraphicManager::myDrawCircle(MyCircle &p, Imagine::Color col,bool drawID){
-    if(p.shapeType!=CIRCLE){cout<<"drawCircle need circle"<<endl;exit(0);}
+    if(p.shapeType!=CIRCLE){
+        cout<<"drawCircle need circle"<<endl;
+        throw logic_error("drawCircle need circle");
+    }
     int xx1,yy1,xx2,yy2,r;
     Vector2 pointOnCircle;
     Transform trans(p.angle,p.center);
@@ -149,10 +154,11 @@ void GraphicManager::savePrintScreen()
     byte *R,*G,*B;
     int w,h;
     char c[10];
-    itoa(frameCountPrintScreen,c,10);
+    stringstream ss;
+    ss<<frameCountPrintScreen;
     Imagine::captureWindow(R,G,B,w,h);
     std::string s("out");
-    s+=c;
+    s+=ss.str();
     s+=".png";
     Imagine::saveColorImage(s,R,G,B,w,h);
     delete[] R;
