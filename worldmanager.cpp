@@ -2,7 +2,7 @@
 #include "readFile.h"
 
 WorldManager::WorldManager():
-    simulator(8,8)
+    simulator(4,5)
 {
     this->gravity=Vector2(0,-10);
     this->dt=0.02;

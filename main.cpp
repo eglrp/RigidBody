@@ -13,7 +13,7 @@ int main()
     int width,height;
 
     //Window size
-    width=height=1024;
+    width=height=300;
 
     //Create managers: GraphicManager, WorldManager UserUIManager
     //And link them
@@ -28,7 +28,9 @@ int main()
     //-----------Edit your input file name  here--------------
     //--------------------------------------------------------
     //--------------------------------------------------------
-    worldManager.readFile("data10block.txt");
+    //worldManager.readFile("data_angrybirds.txt");
+    worldManager.readFile("data_tutorial.txt");
+    //worldManager.readFile("data10block.txt");
     //--------------------------------------------------------
     //--------------------------------------------------------
     //--------------------------------------------------------
@@ -45,12 +47,13 @@ int main()
 
             //Graphic ask World for the shapeList, and he draw all the shapes
             graphicManager.myDisplay(worldManager.getShapeList());
-
+            graphicManager.savePrintScreen();
             //World run one step of simulation
             worldManager.OneStep();
 
             //UserUI can draw buttons on screen, because he knows GraphicManager
             userUI.drawButtons();
+
             //UserUI treat user's action like "drag object" and "creat polygon"
             userUI.treatEvents();
 

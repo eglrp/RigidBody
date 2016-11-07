@@ -13,6 +13,7 @@ struct Button{
     bool state;
     std::string name;
     std::string description;
+    std::string description2;
 };
 class Functionality{
 private:

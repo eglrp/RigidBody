@@ -14,7 +14,7 @@ struct ViewLayout{
     double ratioWidth,ratioHeight;
     Vector2 viewCenter;
     ViewLayout(int windowWidth, int windowHeight);
-    UpdateViewZone();
+    void UpdateViewZone();
     void coordTranslate(double x,double y,int& x_onScreen,int& y_onScreen);
     void coordTranslateInverse(int x_onScreen, int y_onScreen, double& realX, double& realY);
 };
@@ -23,6 +23,7 @@ struct ViewLayout{
 class GraphicManager{
 
     ViewLayout viewLayout;
+    int frameCountPrintScreen;
 
 public:
     GraphicManager(int windowW, int windowH);
@@ -40,7 +41,7 @@ public:
     void myMilliSleep(int milliSec);
 
     void ajustViewZoom(Vector2 move,double zoom);
-
+    void savePrintScreen();
 };
 
 

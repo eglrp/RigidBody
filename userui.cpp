@@ -141,6 +141,7 @@ void UserUI::drawOneButton(Button b)
     }
     Imagine::drawString(b.x+b.w/2-24,b.y+b.h/2+5,b.name,Imagine::RED);
     Imagine::drawString(b.x,b.y+b.h+15,b.description,Imagine::BLACK);
+    Imagine::drawString(b.x,b.y+b.h+25,b.description2,Imagine::BLACK);
 }
 
 UserUI::UserUI(ShapeManager* sM, GraphicManager* gM, WorldManager *wM)
@@ -155,7 +156,7 @@ UserUI::UserUI(ShapeManager* sM, GraphicManager* gM, WorldManager *wM)
     Button buttonDelete;
     Button buttonDebug;
     int xx=10;
-    int w=100,h=40;
+    int w=50,h=20;
     buttonDrag.state=false;
     buttonDrag.x=xx;
     buttonDrag.y=10;
@@ -170,7 +171,8 @@ UserUI::UserUI(ShapeManager* sM, GraphicManager* gM, WorldManager *wM)
     buttonPoly.w=w;
     buttonPoly.h=h;
     buttonPoly.name="Poly";
-    buttonPoly.description="LeftClick to creat vertex, RIGHT CLICK to finish";
+    buttonPoly.description="LeftClick to creat vertex";
+    buttonPoly.description2=", RIGHT CLICK to finish";
 
     buttonCircle.state=false;
     buttonCircle.x=xx;
@@ -178,8 +180,8 @@ UserUI::UserUI(ShapeManager* sM, GraphicManager* gM, WorldManager *wM)
     buttonCircle.w=w;
     buttonCircle.h=h;
     buttonCircle.name="Circle";
-    buttonCircle.description="LeftClick to creat center, RIGHT CLICK to finish";
-
+    buttonCircle.description="LeftClick to creat center";
+    buttonCircle.description2="RIGHT CLICK to finish";
 
     buttonView.state=false;
     buttonView.x=xx;
@@ -187,7 +189,8 @@ UserUI::UserUI(ShapeManager* sM, GraphicManager* gM, WorldManager *wM)
     buttonView.w=w;
     buttonView.h=h;
     buttonView.name="View";
-    buttonView.description="LeftDrag to move, Right Drag to zoom";
+    buttonView.description="LeftDrag to move";
+    buttonView.description2="Right Drag to zoom";
 
     buttonDelete.state=false;
     buttonDelete.x=xx;
@@ -203,7 +206,8 @@ UserUI::UserUI(ShapeManager* sM, GraphicManager* gM, WorldManager *wM)
     buttonDebug.w=w;
     buttonDebug.h=h;
     buttonDebug.name="Debug Draw";
-    buttonDebug.description="Turn on debug drawing for one frame";
+    buttonDebug.description="Turn on debug";
+    buttonDebug.description2="drawing for one frame";
 
     funPoly=FunPoly(buttonPoly);
     funDrag=FunDrag(buttonDrag);

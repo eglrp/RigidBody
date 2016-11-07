@@ -410,6 +410,7 @@ bool CollisionFinder::SATPolygonCircle(MyPolygon *pa, MyCircle *pb, Vector2 &n, 
     Vector2 normal;
     double radius=cir.radius;
     Vector2 cCenter=cir.center;
+
     //reference Polygon
     vector<Vector2>::const_iterator i,iN,j;
 

@@ -20,7 +20,7 @@ void ViewLayout::coordTranslateInverse(int x_onScreen, int y_onScreen, double& r
 GraphicManager::GraphicManager(int windowW,int windowH):
     viewLayout(windowW,windowH)
 {
-
+    frameCountPrintScreen=0;
 }
 
 void GraphicManager::coordTranslate(double x, double y, int &x_onScreen, int &y_onScreen)
@@ -144,6 +144,23 @@ void GraphicManager::ajustViewZoom(Vector2 move, double zoom)
     viewLayout.UpdateViewZone();
 }
 
+void GraphicManager::savePrintScreen()
+{
+    byte *R,*G,*B;
+    int w,h;
+    char c[10];
+    itoa(frameCountPrintScreen,c,10);
+    Imagine::captureWindow(R,G,B,w,h);
+    std::string s("out");
+    s+=c;
+    s+=".png";
+    Imagine::saveColorImage(s,R,G,B,w,h);
+    delete[] R;
+    delete[] G;
+    delete[] B;
+    frameCountPrintScreen++;
+}
+
 
 
 
@@ -157,7 +174,7 @@ ViewLayout::ViewLayout(int windowWidth,int windowHeight)
     UpdateViewZone();
 }
 
-ViewLayout::UpdateViewZone()
+void ViewLayout::UpdateViewZone()
 {
     viewZoneLeft    =-winWidth/2/oneMeterLengthOnScreen+viewCenter.x;
     viewZoneRight   =winWidth/2/oneMeterLengthOnScreen+viewCenter.x;

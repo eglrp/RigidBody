@@ -2,7 +2,7 @@
 #include <iostream>
 #include "graphics.h"
 #define MY_DEBUG
-#define DEBUG_TIME_INTERVAL 20
+#define DEBUG_TIME_INTERVAL 50
 using namespace std;
 void ContactSolver::OneVelocitySolveIteration(vector<ContactConstraint> &allConstraints, std::vector<MyShape *> &shapes)
 {
@@ -244,17 +244,23 @@ void ContactSolver::OneVelocitySolveIteration(vector<ContactConstraint> &allCons
             for(int j=0;j<pointCount;j++){
                 ContactPoint& cp=cc.points[j];
                 Vector2 po=cp.position;
-                double lengthN=max(0.5,cp.normalImpulse);
-                double lengthT=max(0.5,cp.tangentImpulse);
-                Vector2 poNormal=po+n*lengthN/5;
-                Vector2 poNormal2=po-n*lengthN/5;
-                Vector2 poTangent=po+t*lengthT/5;
-                Vector2 poTangent2=po-t*lengthT/5;
+                Vector2 poFrictionA=cp.position-n*0.05;
+                Vector2 poFrictionB=cp.position+n*0.05;
+                //double lengthN=max(0.5,cp.normalImpulse);
+                //double lengthT=max(0.5,cp.tangentImpulse);
+                double lengthN=cp.normalImpulse;
+                double lengthT=cp.tangentImpulse;
+                Vector2 poNormalB=po+n*lengthN/5;
+                Vector2 poNormalA=po-n*lengthN/5;
+                Vector2 poTangentB=po+t*lengthT/5+n*0.05;
+                Vector2 poTangentA=po-t*lengthT/5-n*0.05;
                 debugDrawer->myDrawPoint(po,2,Imagine::GREEN);
-                debugDrawer->myDrawLine(poNormal2.x,poNormal2.y,poNormal.x,poNormal.y,Imagine::GREEN,2);
-                debugDrawer->myDrawLine(poTangent2.x,poTangent2.y,poTangent.x,poTangent.y,Imagine::RED,2);
+                debugDrawer->myDrawLine(poNormalA.x,poNormalA.y,poNormalB.x,poNormalB.y,Imagine::GREEN,2);
+                debugDrawer->myDrawLine(poFrictionB.x,poFrictionB.y,poTangentB.x,poTangentB.y,Imagine::RED,2);
+                debugDrawer->myDrawLine(poFrictionA.x,poFrictionA.y,poTangentA.x,poTangentA.y,Imagine::RED,2);
             }
             debugDrawer->myNoRefreshPop();
+            debugDrawer->savePrintScreen();
             debugDrawer->myMilliSleep(DEBUG_TIME_INTERVAL);
         }
 #endif
@@ -315,12 +321,12 @@ bool ContactSolver::OnePositionSolveIteration(std::vector<ContactConstraint> &al
                 n=transB.r.Apply(cc.localNormal);
                 Vector2 facePoint=transB.Apply(cc.localFacePoint);
                 if(a.shapeType==CIRCLE){
-                    sepPoint=a.center+n*b.radius;
+                    sepPoint=a.center+n*a.radius;
                 }else{
                     sepPoint=transA.Apply(cc.localContact[j]);
                 }
                 separation=(facePoint-sepPoint)*n;
-                separation-=a.radius;
+                //separation-=a.radius;
 
             }
                 break;
@@ -384,6 +390,7 @@ bool ContactSolver::OnePositionSolveIteration(std::vector<ContactConstraint> &al
                 debugDrawer->myDrawLine(po.x,po.y,poB.x,poB.y,Imagine::BLUE,2);
             }
             debugDrawer->myNoRefreshPop();
+            debugDrawer->savePrintScreen();
             debugDrawer->myMilliSleep(DEBUG_TIME_INTERVAL);
             //cout<<a.ID<<"-"<<b.ID<<endl;
         }
