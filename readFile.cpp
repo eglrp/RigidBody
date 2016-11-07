@@ -174,6 +174,10 @@ void FileReader::readSetting(ifstream &inFile, FileWorldDefinition &fSettings)
 
 void FileReader::readFile(string fileName, FileWorldDefinition &fSettings, ShapeManager &shapeManager){
     ifstream inFile(fileName.c_str(),std::ios::binary);
+    if(!inFile.is_open()){
+        cout<<"can't find file : "<<fileName<<endl;
+        throw logic_error("Can't find file");
+    }
     readSetting(inFile,fSettings);
     readShape(inFile,shapeManager);
 

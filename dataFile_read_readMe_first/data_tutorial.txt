@@ -29,7 +29,7 @@ gravity: 0 -10
 
 //simulation speed
 
-speed: 1
+speed: 0.5
 
 
 
@@ -38,7 +38,7 @@ speed: 1
 //If you find your game lags try to reduce it
 //(often caused by slow drawing speed of Imagine++)
 
-frequency: 60
+frequency: 30
 
 
 

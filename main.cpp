@@ -13,7 +13,7 @@ int main()
     int width,height;
 
     //Window size
-    width=height=300;
+    width=height=500;
 
     //Create managers: GraphicManager, WorldManager UserUIManager
     //And link them

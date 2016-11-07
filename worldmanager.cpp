@@ -1,6 +1,7 @@
 #include "worldmanager.h"
 #include "readFile.h"
-
+#include <stdexcept>
+using namespace std;
 WorldManager::WorldManager():
     simulator(4,5)
 {
@@ -30,7 +31,7 @@ void WorldManager::readFile(std::string fileName)
     if(fSetting.debugMode!=0){
         if(debugDrawer==0){
             std::cout<<"please give a DebugDrawer to WorldManager before readFile"<<std::endl;
-            exit(0);
+            throw logic_error("please give a DebugDrawer to WorldManager before readFile");
         }
         simulator.turnOnDebugDraw();
     }
