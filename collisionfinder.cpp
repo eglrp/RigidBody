@@ -1,5 +1,7 @@
 #include "collisionfinder.h"
 #include <stdexcept>
+#include <algorithm>
+
 using namespace std;
 
 
